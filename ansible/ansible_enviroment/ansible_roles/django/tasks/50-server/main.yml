@@ -1,0 +1,20 @@
+---
+
+- include: 10-supervisor.yml
+  become_user: "root"
+
+- include: 20-gunicorn.yml
+  tags: gunicorn
+  when: use_gunicorn
+
+- include: 21-uwsgi.yml
+  tags: uwsgi
+  when: use_uwsgi
+
+- include: 90-nginx.yml
+  become_user: "root"
+  when: use_nginx
+
+- include: 91-apache.yml
+  become_user: "root"
+  when: use_apache

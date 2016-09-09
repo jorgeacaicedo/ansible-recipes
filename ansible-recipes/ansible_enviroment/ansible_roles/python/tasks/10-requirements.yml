@@ -1,0 +1,55 @@
+---
+# install required tools and system wide libraries
+
+- name: install utilities
+  apt: name={{ item }} state=latest update_cache=yes cache_valid_time=600
+  with_items:
+    # required to generate secret key
+    - makepasswd
+    # required for make/compilemessages
+    - gettext
+    # required to build anything
+    - build-essential
+    # to install anything at all
+    - python-pip
+    # easy virtualenv management
+    - virtualenvwrapper
+    # required for dependencies from git repositories
+    - git
+  when: support_django
+
+- name: install library headers for pillow
+  apt: name={{ item }} state=latest update_cache=yes cache_valid_time=600
+  with_items:
+    - libjpeg-dev
+    - libtiff-dev
+    - zlib1g-dev
+    - libfreetype6-dev
+    - liblcms2-dev
+  when: support_pillow
+
+- name: install library headers for lxml
+  apt: name={{ item }} state=latest update_cache=yes cache_valid_time=600
+  with_items:
+    - libxml2-dev
+    - libxslt1-dev
+    - zlib1g-dev
+  when: support_lxml
+
+- name: install library headers for mysql
+  apt: name={{ item }} state=latest update_cache=yes cache_valid_time=600
+  with_items:
+    - libmysqlclient-dev
+  when: support_mysql
+
+- name: install library headers for cffi support
+  apt: name={{ item }} state=latest update_cache=yes cache_valid_time=600
+  with_items:
+    - libffi-dev
+  when: support_cffi
+
+- name: install enchant for sphinx spellcheck
+  apt: name={{ item }} state=latest update_cache=yes cache_valid_time=600
+  with_items:
+    - enchant
+  when: support_sphinx

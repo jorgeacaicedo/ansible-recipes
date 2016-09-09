@@ -1,0 +1,22 @@
+
+sts: all 
+  vars:
+    - itadm_password: '$1$OIQ82d/z$/g14MfIpv9bbXOouNvxzT1'
+ 
+  tasks:
+  - name: Add user itadm
+    user:
+      name=itadm
+      password={{ itadm_password }}
+
+  - name: Add user remote to sudoers
+    lineinfile:
+      "dest=/etc/sudoers
+      regexp='^itadm ALL'
+      line='itadm ALL=(ALL) NOPASSWD: ALL'
+      state=present"
+
+  - name: Add SSH public key to user itadm
+    authorized_key:
+      user=itadm
+      key="{{ lookup('file', "/root/.ssh/id_rsa.pub") }}"

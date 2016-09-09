@@ -1,0 +1,25 @@
+---
+# dependencies on other, external roles
+
+dependencies:
+  # prepare python environment
+  - role: python
+
+  # process management
+  - role: supervisor
+
+  # web servers
+  - role: nginx
+    when: install_nginx
+  - role: apache
+    when: install_apache
+
+  # databases
+  - role: postgresql
+    when: install_postgresql
+  - role: mysql
+    when: install_mysql
+  - role: redis
+    when: install_redis
+  - role: phantomjs
+    when: install_phantomjs

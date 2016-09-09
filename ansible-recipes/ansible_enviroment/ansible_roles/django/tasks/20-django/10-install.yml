@@ -1,0 +1,43 @@
+---
+# create a new django project or link the existing to the install_path
+
+- name: create webapps directory
+  file: >
+    path="{{ item }}"
+    owner={{ service_user }}
+    group={{ service_group }}
+    mode=0755
+    state=directory
+  with_items:
+    - "{{ webapps_path }}"
+
+- name: create static and media directories
+  file: >
+    path="{{ item }}"
+    owner={{ service_user }}
+    group={{ service_group }}
+    mode=0755
+    state=directory
+  with_items:
+    - "{{ static_path }}"
+    - "{{ media_path }}"
+    - "{{ docs_path }}"
+
+- name: register source_path_service variable
+  stat: >
+    path="{{ source_path }}/{{ service_name }}"
+  register: source_path_service
+
+- include: 11-startproject.yml
+  become_user: "{{ service_user }}"
+  when: source_path_service.stat.exists == False
+
+- name: link django project from {{ source_path }}
+  file: >
+    src={{ source_path }}
+    dest={{ install_path }}
+    owner={{ service_user }}
+    group={{ service_group }}
+    state=link
+  notify:
+    - restart service group

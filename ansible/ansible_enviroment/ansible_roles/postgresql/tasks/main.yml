@@ -1,0 +1,12 @@
+---
+
+- include: postgresql.yml
+  become_user: 'root'
+  tags: postgresql
+
+- include: postgis.yml
+  become_user: 'root'
+  tags:
+    - postgresql
+    - postgis
+  when: enable_postgis

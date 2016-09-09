@@ -1,0 +1,77 @@
+---
+
+- name: run migrations
+  django_manage: >
+    command=migrate
+    app_path={{ install_path }}
+    virtualenv={{ virtualenv_path }}
+    settings={{ django_settings_module }}
+  tags: django_migrate
+
+- name: collect static files
+  django_manage: >
+    command="collectstatic"
+    app_path={{ install_path }}
+    virtualenv={{ virtualenv_path }}
+    settings={{ django_settings_module }}
+  tags: django_collectstatic
+
+- name: make messages
+  django_manage: >
+    command="makemessages --all --symlinks --extension=html,py,txt --no-wrap"
+    app_path={{ install_path }}
+    virtualenv={{ virtualenv_path }}
+    settings={{ django_settings_module }}
+  environment:
+    LANG: "en_US.UTF-8"
+    LC_ALL: "en_US.UTF-8"
+  tags:
+    - django_makemessages
+  when: not disabled_by_default
+
+- name: compile messages
+  django_manage: >
+    command="compilemessages"
+    app_path={{ install_path }}
+    virtualenv={{ virtualenv_path }}
+    settings={{ django_settings_module }}
+  tags:
+    - django_makemessages
+    - django_compilemessages
+
+- name: create initial revisions for reversion
+  django_manage: >
+    command="createinitialrevisions"
+    app_path={{ install_path }}
+    virtualenv={{ virtualenv_path }}
+    settings={{ django_settings_module }}
+  tags: django_initialrevisions
+  when: "{{ use_reversion }}"
+
+- name: build html documentation
+  shell: "source {{ virtualenv_path }}/bin/activate && make html"
+  args:
+    chdir: "{{ source_path }}/docs/{{ item }}"
+    executable: "/bin/bash"
+  with_items: "{{ sphinx_projects }}"
+  when: "{{ sphinx_projects }}"
+  tags:
+    - build_docs
+
+- name: link html documentation
+  file: >
+    src="{{ source_path }}/docs/{{ item }}/build/html"
+    dest="{{ docs_path }}/{{ item }}"
+    owner="{{ service_user }}"
+    group="{{ service_group }}"
+    state=link
+  with_items: "{{ sphinx_projects }}"
+  when: "{{ sphinx_projects }}"
+  tags:
+    - build_docs
+
+- name: go to {{ source_path }} after login
+  lineinfile: >
+    dest="~{{ service_user }}/.bashrc"
+    line="cd {{ source_path }}"
+    state=present

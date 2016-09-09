@@ -1,0 +1,8 @@
+---
+ ol6
+ - name: Add repository
+ - copy: src=http://linux.dell.com/repo/hardware/latest/mirrors.cgi?osname=el$releasever&basearch=$basearch&native=1
+          dest=/etc/yum.repos.d/
+          owner=root group=root mode=0644
+
+

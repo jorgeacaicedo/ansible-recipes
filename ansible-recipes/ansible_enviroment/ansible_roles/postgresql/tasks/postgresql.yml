@@ -1,0 +1,46 @@
+---
+# setup postgresql server
+
+- name: install postgresql
+  apt: name={{ item }} state=latest update_cache=yes cache_valid_time=600
+  with_items:
+    - postgresql-{{ postgres_version }}
+    - postgresql-contrib-{{ postgres_version }}
+    - libpq-dev
+    - python-psycopg2
+
+- name: allow host access via password in pg_hba.conf
+  lineinfile: >
+    dest="/etc/postgresql/{{ postgres_version }}/main/pg_hba.conf"
+    regexp="^#*host\s+all\s+all\s+all\s+md5$"
+    line="host    all             all             all                     md5"
+    state=present
+    backup=yes
+    create=no
+  notify:
+    - restart postgresql
+
+- name: set listen_addresses in postgresql.conf
+  lineinfile: >
+    dest="/etc/postgresql/{{ postgres_version }}/main/postgresql.conf"
+    regexp="^#*listen_addresses.*$"
+    line="listen_addresses = '{{ postgres_host }}'"
+    state=present
+    backup=yes
+    create=no
+  notify:
+    - restart postgresql
+
+- name: set listen_addresses in postgresql.conf
+  lineinfile: >
+    dest="/etc/postgresql/{{ postgres_version }}/main/postgresql.conf"
+    regexp="^#*port.*$"
+    line="port = {{ postgres_port }}"
+    state=present
+    backup=yes
+    create=no
+  notify:
+    - restart postgresql
+
+- name: enable postgresql
+  service: name=postgresql state=started enabled=yes

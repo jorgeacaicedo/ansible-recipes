@@ -1,0 +1,37 @@
+---
+# setup apache server
+
+- name: check for nginx
+  shell: "service nginx status"
+  register: _svc_nginx
+  ignore_errors: yes
+
+- name: disable nginx
+  service: name=nginx state=stopped enabled=no
+  when: "_svc_nginx.rc == 0"
+
+- name: install apache
+  apt: name={{ item }} state=latest update_cache=yes cache_valid_time=600
+  with_items:
+    - apache2
+
+- name: enable apache modules
+  file:
+    src: "{{ apache_config_path }}/mods-available/{{ item }}"
+    dest: "{{ apache_config_path }}/mods-enabled/{{ item }}"
+    state: link
+  with_items: "{{ apache_enabled_modules }}"
+  notify: restart apache
+
+- name: update access to apache2 logs
+  file: >
+    path="/var/log/apache2/"
+    mode=0644
+    state=directory
+    recurse=yes
+
+- name: update access to apache2 log directory
+  file: >
+    path="/var/log/apache2"
+    mode=0755
+    state=directory

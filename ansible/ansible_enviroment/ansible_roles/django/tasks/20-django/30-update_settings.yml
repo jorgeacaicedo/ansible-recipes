@@ -1,0 +1,37 @@
+---
+
+- name: generate django_secret_key
+  set_fact: >
+    django_secret_key="{{ lookup('password', '/tmp/foo chars=ascii_letters,digits length=50') }}"
+  when: django_secret_key is undefined
+
+- name: determine database engine
+  set_fact: >
+    db_engine="{{ db_engine_postgis }}"
+  when: enable_postgis
+
+- name: configure django secret settings
+  template: >
+    src="secret.py.j2"
+    dest="{{ install_path }}/{{ service_name }}/{{ secret_settings }}"
+    owner={{ service_user }}
+    group={{ service_group }}
+    mode=0644
+  notify:
+    - restart service group
+
+- name: configure django local settings
+  template: >
+    src="local.py.j2"
+    dest="{{ install_path }}/{{ service_name }}/{{ local_settings }}"
+    owner={{ service_user }}
+    group={{ service_group }}
+    mode=0644
+  notify:
+    - restart service group
+
+- name: add DJANGO_SETTINGS_MODULE to .bashrc
+  lineinfile: >
+    dest="~{{ service_user }}/.bashrc"
+    line="export DJANGO_SETTINGS_MODULE={{ django_settings_module }}"
+    state=present

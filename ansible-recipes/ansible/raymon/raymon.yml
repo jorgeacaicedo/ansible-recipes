@@ -1,0 +1,22 @@
+---
+- hosts: status-servers
+  sudo: True
+  user: remy
+
+  vars:
+    scriptdir: "/srv/http/status"
+    wwwuser: "www-data"
+    wwwgroup: "www-data"
+    pbname: $inventory_hostname
+
+
+  tasks:
+
+  - name: Create ray-mon server script directory
+    file: path=$scriptdir/ state=directory owner=$wwwuser group=$wwwuser mode=0755
+
+  - name: Get static files from github (for the html kickstart framework)
+    git: repo=git://github.com/RaymiiOrg/HTML-KickStart.git dest=$scriptdir/git
+
+  - name: Copy stat.php
+    copy: src=config/stat.php dest=$scriptdir/index.php owner=$wwwuser group=$wwwgroup mode=0755

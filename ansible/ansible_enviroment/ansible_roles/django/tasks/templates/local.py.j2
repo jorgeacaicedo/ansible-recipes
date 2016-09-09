@@ -1,0 +1,46 @@
+# -*- coding: utf-8 -*-
+# machine dependent settings
+from __future__ import unicode_literals
+from __future__ import absolute_import
+from .base import *
+
+try:
+    from .project import *
+except ImportError:
+    pass
+
+
+STATIC_ROOT = '{{ static_path }}'
+MEDIA_ROOT = '{{ media_path }}'
+
+{% if use_postgresql %}
+DATABASES = {
+    'default': {
+        'ENGINE': '{{ db_engine }}',
+        'NAME': DATABASE_NAME,
+        'USER': DATABASE_USER,
+        'PASSWORD': DATABASE_PASSWORD,
+        'HOST': '{{ db_host }}',
+        'PORT': '{{ db_port }}',
+        'CONN_MAX_AGE': {{ db_conn_max_age }},
+    },
+}
+{% endif %}
+
+CACHES = {
+    'default': {
+{% if use_redis_cache %}
+        'BACKEND': '{{ redis_cache_backend }}',
+        'LOCATION': '{{ redis_cache_location }}',
+{% else %}
+        'BACKEND': '{{ cache_backend }}',
+        'LOCATION': '{{ cache_location }}',
+{% endif %}
+    },
+}
+
+{% if use_celery %}
+BROKER_URL = '{{ celery_broker_url }}'
+CELERY_RESULT_BACKEND = '{{ celery_result_backend }}'
+CELERY_DEFAULT_QUEUE = '{{ celery_default_queue }}'
+{% endif %}

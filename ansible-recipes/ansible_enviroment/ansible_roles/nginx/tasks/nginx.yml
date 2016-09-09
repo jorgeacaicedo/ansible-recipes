@@ -1,0 +1,26 @@
+---
+# setup nginx server
+
+- name: check for apache
+  shell: "service apache2 status"
+  register: _svc_apache
+  ignore_errors: yes
+
+- name: disable apache
+  service: name=apache2 state=stopped enabled=no
+  when: "_svc_apache.rc == 0"
+
+- name: add ppa:nginx/development
+  apt_repository: repo="{{ nginx_ppa }}"
+  when: nginx_version_dev
+
+- name: install nginx
+  apt: name={{ item }} state=latest update_cache=yes cache_valid_time=600
+  with_items:
+    - nginx
+
+- name: update access to nginx log directory
+  file: >
+    path="{{ nginx_log_path }}"
+    mode=0755
+    state=directory

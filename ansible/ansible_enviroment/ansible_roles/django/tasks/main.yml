@@ -1,0 +1,22 @@
+---
+# tasks to setup a django service in a new virtualenv, install gunicorn as
+# application server and configure supervisor to run it
+
+- fail: >
+    msg='Error: use_nginx and use_apache are mutually exclusive'
+  when: use_nginx|bool and use_apache|bool
+
+- fail: >
+    msg='Error: use_gunicorn and use_uwsgi are mutually exclusive!'
+  when: use_gunicorn|bool and use_uwsgi|bool
+
+- fail: >
+    msg='Error: uWSGI with Apache is not supported!'
+  when: use_apache|bool and use_uwsgi|bool
+
+- include: 20-django/main.yml
+
+- include: 50-server/main.yml
+
+- include: 90-commands/main.yml
+  when: not disabled_by_default

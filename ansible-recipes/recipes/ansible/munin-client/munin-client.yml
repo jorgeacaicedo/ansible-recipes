@@ -1,0 +1,36 @@
+---
+- hosts: spcs
+  sudo: True
+  user: remy
+  connection: ssh # or paramiko
+
+  vars:
+    date: $LOOKUP(date)
+    pkg_mgr: ${ansible_pkg_mgr}
+    pbname: $inventory_hostname
+    listenaddr: '*'
+    listenport: '4949'
+    allowed_addresses: 
+      - '^127\.0\.0\.1$'
+      - '^91\.227\.249\.12$'
+      - '^91\.227\.249\.13$'
+      - '^91\.227\.249\.20$'
+
+  tasks:
+
+  - name: Install munin-node
+    action: $pkg_mgr name=$item state=latest
+    with_items:
+     - munin-node
+
+  - name: Set munin-node config file
+    template: src=config/munin-node.conf.in dest=/etc/munin/munin-node.conf owner=root group=root mode=0755
+    notify: restart munin-node
+
+  - name: Set munin-plugin config file
+    template: src=config/plugin-conf.in dest=/etc/munin/plugin-conf.d/munin-node owner=root group=root mode=0755
+    notify: restart munin-node
+
+  handlers:
+    - name: restart munin-node
+      service: name=munin-node state=restarted enabled=yes

@@ -1,0 +1,12 @@
+---
+
+- name: install self signed certificate and key
+  copy: >
+    src="{{ item }}"
+    dest="{{ ssl_path }}/{{ item }}"
+    owner={{ service_user }}
+    group={{ service_group }}
+    mode=0644
+  with_items:
+    - "server.key"
+    - "server.crt"

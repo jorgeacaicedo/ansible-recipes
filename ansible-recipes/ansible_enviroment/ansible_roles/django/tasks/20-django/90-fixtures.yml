@@ -1,0 +1,20 @@
+---
+
+- name: load other configured fixtures
+  django_manage: >
+    command="loaddata {{ fixture_labels }}"
+    app_path={{ install_path }}
+    virtualenv={{ virtualenv_path }}
+    settings={{ django_settings_module }}
+  when: load_fixtures and fixture_labels
+  tags: load_fixtures
+
+- stat: path={{ source_media_path }}
+  register: _smp
+  tags: load_fixtures
+
+- name: copy initial media
+  shell: >
+    rsync -av {{ source_media_path }}/ {{ media_path }}/
+  when: _smp.stat.isdir is defined and _smp.stat.isdir
+  tags: load_fixtures
