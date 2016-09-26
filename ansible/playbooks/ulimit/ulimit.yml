@@ -1,0 +1,16 @@
+- hosts: kam
+  tasks:
+  - name: Ulimit chance limits
+    blockinfile:
+      dest: /etc/security/limits.conf
+      block: |
+        *          soft     nproc          800000
+        *          hard     nproc          800000
+        *          soft     nofile         800000
+        *          hard     nofile         800000
+  - name: Sysctl   
+    blockinfile:
+      dest: /etc/sysctl.conf
+      block: |
+        fs.file-max = 800000
+
