@@ -1,5 +1,5 @@
-
-sts: all 
+---
+- hosts: all 
   vars:
     - itadm_password: '$1$OIQ82d/z$/g14MfIpv9bbXOouNvxzT1'
  

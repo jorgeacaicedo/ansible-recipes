@@ -1,0 +1,40 @@
+- hosts: kam
+  tasks:
+  - name: Install packets 
+    yum: name={{ item }} state=present
+    with_items:
+    - epel-release
+    - vim
+    - git
+    - gcc
+    - flex
+    - bison
+    - make
+    - libcurl
+    - libxml2
+    - openssl
+    - rtpproxy
+    - mysql
+    - make
+    - libselinux-python      
+  - name: Create folder
+    file: path=/usr/local/src/kamailio state=directory mode=0755
+  - name: Git clone
+    git: repo=git://git.kamailio.org/kamailio depth=1 clone=yes dest=/usr/local/src/kamailio
+  - name: Install final
+    make: chdir=/usr/local/src/kamailio/ target=cfg
+    make: chdir=/usr/local/src/kamailio/ target=all
+    make: chdir=/usr/local/src/kamailio/ target=install
+  - name: Ulimit chance
+    blockinfile:
+      dest: /etc/security/limits.conf
+      block: |
+        *          soft     nproc          800000
+        *          hard     nproc          800000
+        *          soft     nofile         800000
+        *          hard     nofile         800000
+    blockinfile:
+      dest: /etc/sysctl.conf
+      block: |
+        fs.file-max = 800000
+ 

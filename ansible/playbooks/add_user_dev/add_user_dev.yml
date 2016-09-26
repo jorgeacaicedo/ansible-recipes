@@ -1,0 +1,19 @@
+---
+- hosts: dev
+  vars:
+    - jonathan.garzon_password: '$1$.mPZqtMo$yvW8iqTmuJDH6x/jFcBgL1'
+
+  tasks:
+  - name: Add user jonathan.garzon
+    user:
+      name=jonathan.garzon
+      password={{ jonathan.garzon_password }}
+
+  - name: Add user remote to sudoers
+    lineinfile:
+      "dest=/etc/sudoers
+      regexp='^jonathan.garzon ALL'
+      line='jonathan.garzon ALL=(ALL) NOPASSWD: ALL'
+      state=present"
+
+

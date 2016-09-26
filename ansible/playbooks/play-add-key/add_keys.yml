@@ -1,0 +1,10 @@
+---
+- hosts: all 
+  become: yes
+  tasks:
+  - name: Add personal key to host
+    authorized_key:
+      user: acmiac
+      key: "{{ lookup('file', '/home/operador/.ssh/id_rsa.pub') }}"
+
+

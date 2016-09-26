@@ -1,0 +1,13 @@
+- hosts: sms159
+  tasks:
+  - name: Add repository
+    yum_repository:
+      name: dell-system-update_dependent
+      description: DELL repo
+      mirrorlist: http://linux.dell.com/repo/hardware/latest/mirrors.cgi?osname=el$releasever&basearch=$basearch&native=1i
+      gpgcheck: 1
+      gpgkey: http://linux.dell.com/repo/hardware/latest/public.key
+      enabled: 1	
+  - name: Add packet srvadmin
+    yum: name=srvadmin-all state=present
+  - command: /opt/dell/srvadmin/sbin/srvadmin-services.sh start

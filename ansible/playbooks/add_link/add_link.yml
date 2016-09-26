@@ -1,0 +1,20 @@
+- hosts: kay188
+  vars:
+  - file1: "G4CMINUTOSDETRANSFERENCIAESTRATECAGOSTO.xlsx.zip"
+  - src1: "/home/jorgecaicedo/Documentos/CDR_Billing/{{ file1 }}"
+  - hash: "557628f1c8f966ba03dc817a0bcdb425"
+  - myuser: 'root'
+  - mypass: '5ptAhHhe'
+  tasks:
+  - name: Copy files
+    copy:
+      src={{ src1  }}
+      dest="/usr/local/sistemasTelintel/sharedfiles/"
+      owner=itadm
+      group=itadm
+      mode=755
+  - name: insert
+    command: mysql -u{{ myuser  }} -p{{ mypass }} -e "insert into telintelServer.FILES (id_staff,creation_date,hash1,hash2,path,id_company,type_file,status) values (115,now(),'{{ hash  }}','{{ hash  }}','/usr/local/sistemasTelintel/sharedfiles/{{ file1  }}',850,1,1);"
+  - name: Send link
+    command: echo 'http://testtntsrv.telintel.net/downloadra.php?id={{ hash  }}&confirm={{ hash }}'
+
