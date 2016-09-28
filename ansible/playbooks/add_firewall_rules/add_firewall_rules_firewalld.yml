@@ -1,0 +1,14 @@
+- hosts: kam
+  vars:
+  - ip: 192.168.84.0/24
+  - comm: bogota_traffic
+  - port: 2711
+  - proto: tcp
+  tasks:
+  - name: firewalld
+    command: firewall-cmd --permanent --zone=public --add-rich-rule="rule family="ipv4" source address="{{ ip  }}" port port={{ port  }} protocol={{ proto }} log prefix="{{ comm  }}" level=info limit value="1/m" accept"
+    notify:
+    - restart firewalld
+  handlers:
+  - name: restart firewalld
+    service: name=firewalld state=restarted
