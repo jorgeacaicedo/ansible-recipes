@@ -1,0 +1,21 @@
+- hosts: kam
+  vars:
+  - ip: 192.168.84.0/24
+  - comm: Bogota Linux scope
+  - port: 2711
+  - proto: tcp
+  tasks:
+  - name: iptables
+    blockinfile:
+      marker: "#{mark} {{ comm }} #"
+      dest: /etc/sysconfig/iptables
+      insertbefore: COMMIT         
+      block: |
+       -A INPUT -s {{ ip }} -p {{ proto  }} --dport {{ port  }} -m comment --comment "{{ comm  }}" -j LOG  --log-prefix "{{ comm  }} ACCEPT" --log-level 4
+       -A INPUT -s {{ ip }} -p {{ proto }} --dport {{ port }} -j ACCEPT
+    notify: 
+      - restart iptables
+  handlers:
+  - name: restart iptables 
+    service: name=iptables state=restarted
+   
