@@ -1,0 +1,30 @@
+---
+- hosts: POC
+  become: yes   
+  tasks:         
+  - name: Add repository zabbix-agent
+    yum_repository:
+      name: zabbix
+      description: zabbix-agent
+      gpgcheck: no
+      baseurl: http://repo.zabbix.com/zabbix/3.2/rhel/6/x86_64/
+      
+  - name: Install the latest version of zabbix-agent
+    yum:
+      name: zabbix-agent
+      state: present 
+      enabled: yes      
+  
+  - name: Change default configuration in /etc/zabbix/zabbix-agent.conf
+    replace:
+      path: /etc/zabbix/zabbix_agentd.conf
+      regexp: '127.0.0.1'
+      replace: '172.31.90.47'
+    notify:
+      restart zabbix-agent
+
+  handlers:
+    - name: restart zabbix-agent
+      service:
+        name: zabbix-agent
+        state: restarted  
